@@ -5,6 +5,11 @@ void setup() {
   TIMSK1 = (1<<OCIE1A);
   TCCR1A |= (1 << CS12)|(1<<WGM12);
   OCR1A = 3125 - 1;
+
+  
+  TIMSK2 = (1<<OCIE2A);
+  TCCR2A |= (1 << CS12)|(1<<WGM12);
+  OCR2A = 3125 - 1;
   interrupts();
 
   pinMode(RELAY_PIN, OUTPUT);
@@ -27,6 +32,10 @@ ISR(TIMER1_COMPA_vect){
   float avgTemperature_shadow = 0.;
   for(int i=0; i<10; i++){avgTemperature_shadow+=(temperatureList[i]*0.1);}
   avgTemperature = 0.3615*avgTemperature_shadow-38.011 - 3.8*heat - 5; 
+}
+
+ISR(TIMER2_COMPA_vect){
+
 }
 
 void loop() {
