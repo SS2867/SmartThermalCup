@@ -52,7 +52,10 @@ ISR(TIMER1_COMPA_vect){  //Activated every 50 ms
 
   float avgTemperature_shadow = 0.;
   for(int i=0; i<10; i++){avgTemperature_shadow+=(temperatureList[i]*0.1);}
-  avgTemperature = 0.3615*avgTemperature_shadow-38.011 - 3*heat - 5; //When 5V
+  //avgTemperature = 0.3615*avgTemperature_shadow-38.011 - 3*heat - 5; //When 5V
+  //avgTemperature = 0.3615*avgTemperature_shadow-38.011 - 3*heat + 2; //When 3.3V
+  //avgTemperature = 0.4625*avgTemperature_shadow -54.1625 - 3*heat; //When 3.3V
+  avgTemperature = 0.44*avgTemperature_shadow -50.54 - 3*heat + 0.4; //When 3.3V
 
   temperatureAdjust_shadow = analogRead(A1);
   if (temperatureAdjust_ticks){temperatureAdjust_ticks--;}
@@ -68,7 +71,7 @@ ISR(TIMER2_COMPA_vect){
 void loop() {
   // put your main code here, to run repeatedly:
 
-  Serial.println(avgTemperature);
+  Serial.println(analogRead(A0));//avgTemperature);
   
   if (avgTemperature>targetTemperature+1 && heat==1){
     heat=0;
