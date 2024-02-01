@@ -9,7 +9,9 @@ int sevenSegmentDisplay[3] = {12, 8, 8};
 int temperatureList[10] = {1023,1023,1023,1023,1023,1023,1023,1023,1023,1023};
 float avgTemperature = 0.;
 int heat = 0;
+int ticks_50ms = 0;
 int targetTemperature = 28;
+
 
 int temperatureAdjust = 500;
 int temperatureAdjust_shadow = 500;
@@ -50,10 +52,12 @@ ISR(TIMER1_COMPA_vect){  //Activated every 50 ms
 
   float avgTemperature_shadow = 0.;
   for(int i=0; i<10; i++){avgTemperature_shadow+=(temperatureList[i]*0.1);}
-  avgTemperature = 0.3615*avgTemperature_shadow-38.011 - 3.8*heat - 5; //When 5V
+  avgTemperature = 0.3615*avgTemperature_shadow-38.011 - 3*heat - 5; //When 5V
 
   temperatureAdjust_shadow = analogRead(A1);
   if (temperatureAdjust_ticks){temperatureAdjust_ticks--;}
+
+  ticks_50ms = (ticks_50ms+1)%10;
 }
 
 ISR(TIMER2_COMPA_vect){
@@ -69,11 +73,11 @@ void loop() {
   if (avgTemperature>targetTemperature+1 && heat==1){
     heat=0;
     digitalWrite(RELAY_PIN, LOW);
-    delay(550);    
+    delay(350);    
   }else if(avgTemperature<targetTemperature-1 && heat==0){
     heat=1;
     digitalWrite(RELAY_PIN, HIGH);
-    delay(550);
+    delay(350);
   }
 
   if (abs(temperatureAdjust-temperatureAdjust_shadow)>=8){
@@ -83,11 +87,11 @@ void loop() {
   }
 
   if(temperatureAdjust_ticks){
-    sevenSegmentDisplay[0] = 11;
+    sevenSegmentDisplay[0] = 11 ;
     sevenSegmentDisplay[1] = (int)targetTemperature%100/10;
     sevenSegmentDisplay[2] = (int)targetTemperature%10;
   }else{
-    sevenSegmentDisplay[0] = 12;
+    sevenSegmentDisplay[0] = 12 - 2*heat*(ticks_50ms>=6) ;
     sevenSegmentDisplay[1] = (int)avgTemperature%100/10;
     sevenSegmentDisplay[2] = (int)avgTemperature%10;
   }
@@ -96,5 +100,3 @@ void loop() {
 
   delay(100);
 }
-
-
