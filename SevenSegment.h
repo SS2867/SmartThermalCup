@@ -2,7 +2,34 @@
 #define __SEVENSEGMENT_H
 #include <Arduino.h>
 
+void copyArray(int source[], int destination[], int size) {
+    for (int i = 0; i < size; i++) {
+        destination[i] = source[i];
+    }
+}
 
+void swap(int* a, int* b) {int temp = *a;  *a = *b;  *b = temp;}
+int partition(int arr[], int low, int high) {
+  int pivot = arr[high];
+  int i = low;
+  int j = high - 1;
+  while(i<j){
+    if (arr[i]>pivot && arr[j]<pivot){swap(&arr[i], &arr[j]);} 
+    while (arr[i]<=pivot && i<j){i++;};
+    while (arr[j]>=pivot && i<j){j--;}; 
+  }
+  if (arr[i] >= pivot){
+    swap(&arr[i], &arr[high]); return (i);
+  }else{ return(high);  }
+}
+
+void quicksort(int arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        quicksort(arr, low, pi - 1);
+        quicksort(arr, pi + 1, high);
+    }
+}
 
 void sevenSegmentInit(void){
   pinMode(2, OUTPUT);

@@ -6,15 +6,15 @@ int RELAY_PIN = 9;
 
 int sevenSegmentIdx = 0;
 int sevenSegmentDisplay[3] = {12, 8, 8};
-int temperatureList[10] = {1023,1023,1023,1023,1023,1023,1023,1023,1023,1023};
+int temperatureList[40] ; 
 float avgTemperature = 0.;
 int heat = 0;
 int ticks_50ms = 0;
 int targetTemperature = 28;
 
 
-int temperatureAdjust = 500;
-int temperatureAdjust_shadow = 500;
+int temperatureAdjust = 0;
+int temperatureAdjust_shadow = 0;
 int temperatureAdjust_ticks = 30;
 
 void setup() {
@@ -33,7 +33,7 @@ void setup() {
   interrupts();
 
   sevenSegmentInit();
-  
+  for(int i=0; i<40;i++){temperatureList[i]=1023;}
   pinMode(RELAY_PIN, OUTPUT);
   
   Serial.begin(9600);
@@ -45,16 +45,17 @@ void setup() {
 
 
 ISR(TIMER1_COMPA_vect){  //Activated every 50 ms
-  for(int i=0; i<10; i++){  
+  for(int i=0; i<40; i++){  
         temperatureList[i] = temperatureList[i+1];
     }
-  temperatureList[9] = analogRead(A0);
-
+  temperatureList[40-1] = analogRead(A0);
+  int temperatureList_sorted[20];
+  copyArray(temperatureList, temperatureList_sorted, 40);
+  quicksort(temperatureList_sorted, 0, 40-1);
+  
   float avgTemperature_shadow = 0.;
-  for(int i=0; i<10; i++){avgTemperature_shadow+=(temperatureList[i]*0.1);}
+  for(int i=4; i<40-4; i++){avgTemperature_shadow+=(temperatureList[i]/32.);}
   //avgTemperature = 0.3615*avgTemperature_shadow-38.011 - 3*heat - 5; //When 5V
-  //avgTemperature = 0.3615*avgTemperature_shadow-38.011 - 3*heat + 2; //When 3.3V
-  //avgTemperature = 0.4625*avgTemperature_shadow -54.1625 - 3*heat; //When 3.3V
   avgTemperature = 0.44*avgTemperature_shadow -50.54 - 3*heat + 0.4; //When 3.3V
 
   temperatureAdjust_shadow = analogRead(A1);
@@ -83,7 +84,7 @@ void loop() {
     delay(350);
   }
 
-  if (abs(temperatureAdjust-temperatureAdjust_shadow)>=8){
+  if (abs(temperatureAdjust-temperatureAdjust_shadow)>=10){
     temperatureAdjust = temperatureAdjust_shadow;
     temperatureAdjust_ticks = 30;
     targetTemperature = int(temperatureAdjust/22.53) + 15;
