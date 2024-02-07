@@ -49,12 +49,12 @@ ISR(TIMER1_COMPA_vect){  //Activated every 50 ms
         temperatureList[i] = temperatureList[i+1];
     }
   temperatureList[40-1] = analogRead(A0);
-  int temperatureList_sorted[20];
+  int temperatureList_sorted[40];
   copyArray(temperatureList, temperatureList_sorted, 40);
   quicksort(temperatureList_sorted, 0, 40-1);
   
   float avgTemperature_shadow = 0.;
-  for(int i=4; i<40-4; i++){avgTemperature_shadow+=(temperatureList[i]/32.);}
+  for(int i=4; i<40-4; i++){avgTemperature_shadow+=(temperatureList_sorted[i]/32.);}
   //avgTemperature = 0.3615*avgTemperature_shadow-38.011 - 3*heat - 5; //When 5V
   avgTemperature = 0.44*avgTemperature_shadow -50.54 - 3*heat + 0.4; //When 3.3V
 
